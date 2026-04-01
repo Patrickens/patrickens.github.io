@@ -1,0 +1,421 @@
+:root {
+  --paper: #ffffff;
+  --line: #b9b9b9;
+  --ink: #232120;
+  --muted: #67605a;
+  --accent: #8f3c23;
+  --panel-warm: #f5ece2;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--ink);
+  background: #ffffff;
+  line-height: 1.55;
+  height: 100dvh;
+  overflow: hidden;
+  padding-top: 10px;
+}
+
+.quadrants {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 220px minmax(0, 1fr);
+  grid-template-areas: "photo top" "links content";
+  width: 100%;
+  height: calc(100dvh - 66px);
+  min-height: 0;
+  margin: 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.q-photo,
+.q-topright,
+.q-links,
+.q-content {
+  padding: 1.25rem;
+}
+
+.q-photo,
+.q-links {
+  border-right: 1px solid var(--line);
+}
+
+.q-photo,
+.q-topright {
+  border-bottom: 1px solid var(--line);
+}
+
+.q-photo {
+  grid-area: photo;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  text-align: center;
+  background: var(--panel-warm);
+}
+
+.q-topright {
+  grid-area: top;
+  position: relative;
+  overflow: hidden;
+}
+
+.q-links {
+  grid-area: links;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.q-content {
+  grid-area: content;
+  padding: 1.7rem 2rem;
+  min-height: 0;
+  overflow: auto;
+}
+
+.photo-circle {
+  width: 146px;
+  height: 146px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #fff;
+  box-shadow: 0 10px 30px rgba(35, 33, 32, 0.16);
+  flex: 0 0 auto;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  display: block;
+}
+
+.photo-name { margin: 0; font-weight: 500; line-height: 1.1; }
+
+.photo-email {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.at-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.nav-links a {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+  color: #3b3734;
+  border: 1px solid transparent;
+  border-radius: 0.4rem;
+  padding: 0.6rem 0.7rem;
+  font-weight: 700;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--accent);
+  border-color: var(--line);
+  background: #fff;
+}
+
+.pixel-rain,
+.top-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pixel-rain { z-index: 0; }
+.top-pattern { z-index: 1; opacity: 0.95; }
+
+.pixel-rain canvas,
+.top-pattern canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+h1, h2, h3 {
+  margin: 0.35rem 0 0.8rem;
+  line-height: 1.25;
+}
+
+a { color: var(--accent); }
+
+.tab-panel {
+  animation: fade 260ms ease;
+}
+
+.card {
+  border: 1px solid #d9cfbd;
+  border-radius: 0.8rem;
+  padding: 1rem;
+  background: #fff;
+  margin-bottom: 0.9rem;
+}
+
+#about { max-width: 100%; }
+
+.about-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 50%) minmax(260px, 50%);
+  gap: 1.1rem;
+  align-items: start;
+}
+
+.about-layout > div {
+  max-width: 75ch;
+}
+
+.about-photo {
+  width: auto;
+  max-width: 92%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+
+.about-photo-box {
+  align-self: start;
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.muted {
+  color: var(--muted);
+  margin-top: -0.4rem;
+}
+
+.bibtex {
+  width: 60%;
+  margin: 0.8rem 0 0;
+  padding: 0.7rem;
+  background: #f7f7f7;
+  border: 1px solid var(--line);
+  overflow: auto;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.bibtex a { word-break: break-all; }
+
+.download-btn {
+  display: inline-block;
+  text-decoration: none;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  margin-top: 0.6rem;
+}
+
+.site-footer {
+  width: 100%;
+  margin: 0;
+  padding: 0 1rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  background: var(--panel-warm);
+}
+
+.footer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  transform: translateY(-8px);
+}
+
+.social-icons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nyan {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nyan-cat {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.nyan-rainbow {
+  position: relative;
+  width: 72px;
+  height: 30px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: repeating-linear-gradient(
+    90deg,
+    #ffd6e0 0 10px,
+    #ffe4c7 10px 20px,
+    #fff2b3 20px 30px,
+    #d8f8c9 30px 40px,
+    #d2ecff 40px 50px,
+    #ead8ff 50px 60px
+  );
+  background-size: 140px 30px;
+  animation: nyanSlide 6s linear infinite;
+}
+
+.nyan-rainbow::before,
+.nyan-rainbow::after {
+  content: "";
+  position: absolute;
+  left: -32px;
+  width: calc(100% + 64px);
+  height: 10px;
+  pointer-events: none;
+  background-repeat: repeat-x;
+  background-size: 28px 10px;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  animation: nyanWaveEdge 1.4s linear infinite;
+}
+
+.nyan-rainbow::before {
+  top: 0;
+  background: var(--panel-warm);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 10' preserveAspectRatio='none'%3E%3Cpath d='M0 10 C3.5 4 10.5 4 14 10 C17.5 16 24.5 16 28 10 L28 0 L0 0 Z' fill='black'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 10' preserveAspectRatio='none'%3E%3Cpath d='M0 10 C3.5 4 10.5 4 14 10 C17.5 16 24.5 16 28 10 L28 0 L0 0 Z' fill='black'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: 28px 10px;
+  mask-size: 28px 10px;
+}
+
+.nyan-rainbow::after {
+  bottom: 0;
+  background: var(--panel-warm);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0 C3.5 6 10.5 6 14 0 C17.5 -6 24.5 -6 28 0 L28 10 L0 10 Z' fill='black'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0 C3.5 6 10.5 6 14 0 C17.5 -6 24.5 -6 28 0 L28 10 L0 10 Z' fill='black'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: 28px 10px;
+  mask-size: 28px 10px;
+  animation-delay: -0.7s;
+}
+
+.nyan-right .nyan-rainbow {
+  transform: scaleX(-1);
+}
+
+.nyan-right .nyan-cat {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+.social-icons a {
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+}
+
+.social-icons a:hover { color: var(--accent); }
+
+.social-icons svg {
+  width: 26px;
+  height: 26px;
+  fill: currentColor;
+  display: block;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nyanSlide {
+  from { background-position: 0 0; }
+  to { background-position: 140px 0; }
+}
+
+@keyframes nyanWaveEdge {
+  from {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  to {
+    -webkit-mask-position: 28px 0;
+    mask-position: 28px 0;
+  }
+}
+
+@media (max-width: 860px) {
+  .quadrants {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-areas: "photo" "top" "links" "content";
+    height: calc(100dvh - 66px);
+  }
+
+  .q-photo,
+  .q-links,
+  .q-topright,
+  .q-content {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .q-content { border-bottom: 0; }
+  #about { max-width: 100%; }
+  .about-layout { grid-template-columns: 1fr; }
+  .bibtex { width: 100%; }
+  .nyan-rainbow { width: 48px; }
+}

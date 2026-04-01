@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Thomas Diederen personal website: computational biology, publications, CV, and blog posts.">
+  <title>Thomas Diederen | Computational Biology</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <div class="quadrants">
+    <aside class="q-photo">
+      <div class="photo-circle">
+        <img class="profile-photo" src="tomek_picture.jfif" alt="Portrait of Thomas Diederen">
+      </div>
+      <p class="photo-name">Thomas Diederen</p>
+      <p class="photo-email"><span class="at-icon">@</span> diederent@gmail.com</p>
+    </aside>
+
+    <section class="q-topright">
+      <div class="top-pattern" aria-hidden="true">
+        <canvas id="top-pattern-canvas"></canvas>
+      </div>
+    </section>
+
+    <aside class="q-links">
+      <nav class="nav-links" aria-label="Main sections">
+        <a href="#about" data-tab="about">About Me</a>
+        <a href="#publications" data-tab="publications">Publications</a>
+        <a href="#cv" data-tab="cv">CV</a>
+        <a href="#blog" data-tab="blog">Blog</a>
+      </nav>
+      <div class="pixel-rain" aria-hidden="true">
+        <canvas id="pixel-rain-canvas"></canvas>
+      </div>
+    </aside>
+
+    <main class="q-content">
+      <section id="about" class="tab-panel">
+        <div class="about-layout">
+          <div>
+            <p>
+              I am a computational biologist and machine learning researcher interested in making biological
+              systems more predictable and useful. I work at the interface of mechanistic modeling and modern
+              ML, with a focus on metabolic and process modeling, simulation-based inference, and
+              decision-making under uncertainty.
+            </p>
+            <p>
+              I completed my PhD in computational biology at ETH Zurich, where I worked on simulation-based
+              metabolic flux inference. My research focused on Bayesian inference of biochemical reaction rates
+              and on developing generative modeling methods for constrained biological systems, giving me a
+              strong foundation in probabilistic modeling and scientific software development.
+            </p>
+            <p>
+              Most recently, at Differential Bio, I developed differentiable dynamic metabolic simulators and
+              inference pipelines for microbial bioprocesses. In parallel, I built a pipeline for automatic
+              genome-scale metabolic model reconstruction and curation, which led to the company's first
+              commercial software license and is now used to recommend growth media and to screen microbial
+              libraries for commercialization.
+            </p>
+            <p>
+              Outside of work, I spend a lot of time in the mountains - climbing and ski touring whenever
+              possible. I also enjoy reading and playing guitar, usually alternating between trying to learn
+              something new and just enjoying the process.
+            </p>
+          </div>
+          <div class="about-photo-box">
+            <img class="about-photo" src="mountains.jpg" alt="Mountain landscape">
+          </div>
+        </div>
+      </section>
+
+      <section id="publications" class="tab-panel" hidden>
+        <article class="card">
+          <h3>Flows on convex polytopes</h3>
+          <p class="muted">arXiv preprint arXiv:2503.10232, 2025-03-13</p>
+          <div class="bibtex">@article{diederen2025flows,
+  author = {Tomek Diederen and Nicola Zamboni},
+  title = {Flows on convex polytopes},
+  journal = {arXiv preprint arXiv:2503.10232},
+  year = {2025},
+  month = {03},
+  day = {13},
+  url = {<a href="https://arxiv.org/abs/2503.10232" target="_blank" rel="noreferrer">https://arxiv.org/abs/2503.10232</a>},
+  pdf = {<a href="https://arxiv.org/pdf/2503.10232" target="_blank" rel="noreferrer">https://arxiv.org/pdf/2503.10232</a>}
+}</div>
+        </article>
+
+        <article class="card">
+          <h3>Simulation-based metabolic flux inference</h3>
+          <p class="muted">PhD Thesis, ETH Zurich, 2023</p>
+          <div class="bibtex">@phdthesis{diederen2023sbmfi,
+  author = {Thomas HM Diederen},
+  title = {Simulation-based metabolic flux inference},
+  school = {ETH Zurich},
+  year = {2023},
+  url = {<a href="https://www.research-collection.ethz.ch/entities/publication/3f28a9cc-00e3-452d-b2dc-0d77acde6f7c" target="_blank" rel="noreferrer">https://www.research-collection.ethz.ch/entities/publication/3f28a9cc-00e3-452d-b2dc-0d77acde6f7c</a>},
+  pdf = {<a href="https://www.research-collection.ethz.ch/bitstreams/c92dff05-d81e-47e1-9547-4e51dfa744c7/download" target="_blank" rel="noreferrer">https://www.research-collection.ethz.ch/bitstreams/c92dff05-d81e-47e1-9547-4e51dfa744c7/download</a>}
+}</div>
+        </article>
+      </section>
+
+      <section id="cv" class="tab-panel" hidden>
+        <div class="card">
+          <h3>Consultant, Computational Biology - Differential Bio</h3>
+          <p class="muted">Hybrid, Munich, Bavaria | Jul 2025 - Jan 2026 (contract)</p>
+          <p>Developing core machine learning capabilities around hybrid mechanistic ODE models, variational inference, and neural ODEs in JAX.</p>
+        </div>
+        <div class="card">
+          <h3>PhD - ETH Zurich, Institute for Molecular Systems Biology</h3>
+          <p class="muted">Aug 2018 - Jan 2024</p>
+          <p>Engineered the sbmfi package in PyTorch for simulation-based metabolic flux inference.</p>
+        </div>
+        <a class="download-btn" href="Thomas_Diederen_CV.pdf" download>Download Full CV (PDF)</a>
+      </section>
+
+      <section id="blog" class="tab-panel" hidden>
+        <article class="card">
+          <p class="muted">March 2026</p>
+          <h3>Cutting Bioreactor Scale-Up Costs with a Differentiable Metabolic Simulator</h3>
+          <p>
+            Full post adapted from the original repository draft, including the inference pipeline figure.
+          </p>
+          <p><a href="blog/posts/hybrid-modeling/index.html">Read full post</a></p>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <div class="nyan nyan-left" aria-hidden="true">
+        <span class="nyan-cat">🐈</span>
+        <span class="nyan-rainbow"></span>
+      </div>
+
+      <div class="social-icons" aria-label="Social links">
+      <a href="https://scholar.google.com/citations?user=wqxedakAAAAJ&hl=en" target="_blank" rel="noreferrer" title="Google Scholar" aria-label="Google Scholar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3Zm-7 9.18V16c0 2.76 3.13 5 7 5s7-2.24 7-5v-3.82l-7 3.82-7-3.82Z"/></svg>
+      </a>
+      <a href="https://linkedin.com/in/diederent" target="_blank" rel="noreferrer" title="LinkedIn" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5ZM.5 8h4V24h-4V8Zm7 0h3.8v2.2h.05c.53-1 1.82-2.2 3.75-2.2 4.01 0 4.75 2.64 4.75 6.08V24h-4v-8.2c0-1.96-.03-4.48-2.73-4.48-2.73 0-3.15 2.13-3.15 4.34V24h-4V8Z"/></svg>
+      </a>
+      <a href="https://github.com/TomekDiederen" target="_blank" rel="noreferrer" title="GitHub" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.03c-3.34.72-4.04-1.41-4.04-1.41-.55-1.38-1.33-1.74-1.33-1.74-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.23 1.84 1.23 1.07 1.82 2.8 1.3 3.49.99.11-.77.42-1.3.76-1.6-2.67-.3-5.48-1.33-5.48-5.92 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.16 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.64.24 2.86.12 3.16.77.84 1.24 1.91 1.24 3.22 0 4.6-2.82 5.62-5.51 5.92.43.38.82 1.11.82 2.24v3.32c0 .32.22.7.82.58A12 12 0 0 0 12 .5Z"/></svg>
+      </a>
+      <a href="mailto:diederent@gmail.com" title="Email" aria-label="Email">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm10 7L2 6.5V18h20V6.5L12 11Zm0-2 10-4H2l10 4Z"/></svg>
+      </a>
+      </div>
+
+      <div class="nyan nyan-right" aria-hidden="true">
+        <span class="nyan-rainbow"></span>
+        <span class="nyan-cat">🐈</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/tabs.js" defer></script>
+  <script src="js/animations.js" defer></script>
+</body>
+</html>
