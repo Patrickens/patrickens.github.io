@@ -74,9 +74,16 @@
       </section>
 
       <section id="publications" class="tab-panel" hidden>
-        <article class="card">
+        <article class="publication-item">
+          <h3>A Differentiable dFBA Simulator for Scalable Bayesian Inference over Microbial Metabolic Models</h3>
+          <p class="muted">Preprint, 2026 — submitted to bioRxiv</p>
+          <p>A differentiable dynamic flux balance analysis simulator embedded in JAX, enabling end-to-end gradient-based inference over ~2,100 batch fermentations using OD600 as the sole observation signal.</p>
+          <a class="download-btn" href="hybrid_dfba_paper.pdf" download style="display:inline-block;margin-top:0.5rem;">Download preprint (PDF)</a>
+        </article>
+
+        <article class="publication-item">
           <h3>Flows on convex polytopes</h3>
-          <p class="muted">arXiv preprint arXiv:2503.10232, 2025-03-13</p>
+          <p class="muted">arXiv preprint arXiv:2503.10232, 2025</p>
           <div class="bibtex">@article{diederen2025flows,
   author = {Tomek Diederen and Nicola Zamboni},
   title = {Flows on convex polytopes},
@@ -89,7 +96,7 @@
 }</div>
         </article>
 
-        <article class="card">
+        <article class="publication-item">
           <h3>Simulation-based metabolic flux inference</h3>
           <p class="muted">PhD Thesis, ETH Zurich, 2023</p>
           <div class="bibtex">@phdthesis{diederen2023sbmfi,
@@ -104,16 +111,95 @@
       </section>
 
       <section id="cv" class="tab-panel" hidden>
-        <div class="card">
-          <h3>Consultant, Computational Biology - Differential Bio</h3>
-          <p class="muted">Hybrid, Munich, Bavaria | Jul 2025 - Jan 2026 (contract)</p>
-          <p>Developing core machine learning capabilities around hybrid mechanistic ODE models, variational inference, and neural ODEs in JAX.</p>
-        </div>
-        <div class="card">
-          <h3>PhD - ETH Zurich, Institute for Molecular Systems Biology</h3>
-          <p class="muted">Aug 2018 - Jan 2024</p>
-          <p>Engineered the sbmfi package in PyTorch for simulation-based metabolic flux inference.</p>
-        </div>
+        <h3 class="cv-section">Experience</h3>
+        <ul class="cv-list">
+          <li>
+            <p class="cv-title">Independent Contractor, Computational Biology - Differential Bio</p>
+            <p class="cv-meta">Munich, Germany | Jul 2025 - Mar 2026</p>
+            <ul>
+              <li>Developed core ML capabilities for microbial bioprocessing with differentiable dynamic flux balance analysis (dFBA), variational inference, and neural ODE workflows in JAX.</li>
+              <li>Built an automated genome-scale metabolic model reconstruction and curation pipeline, enabling Differential Bio's first commercial software license and supporting growth-media recommendation and library screening.</li>
+            </ul>
+            <details class="cv-readmore">
+              <summary>Read more</summary>
+              <p>
+                My contract at Differential Bio focused on building reliable modeling infrastructure that teams could
+                use in production, not just in one-off research notebooks. A central part of the work was
+                implementing differentiable dynamic metabolic simulators that could couple mechanistic constraints
+                with modern inference methods. This meant setting up a robust modeling stack where ODE-based process
+                models, parameter priors, and optimization loops worked together under realistic data quality and
+                throughput constraints. I spent significant effort on numerical stability and reproducibility so that
+                model updates remained trustworthy as new fermentation runs were added. In parallel, I designed and
+                implemented an automated genome-scale model reconstruction and curation workflow to reduce manual
+                turnaround time for new organisms. That pipeline translated fragmented inputs into usable models with
+                quality checks and curation hooks, making it practical for repeated use across projects. The outcome
+                was not only faster internal development cycles but also a direct commercial impact: the resulting
+                software capabilities contributed to the company's first commercial license. The same framework is now
+                applied to media recommendation and candidate screening workflows, where practical decision support and
+                maintainability matter as much as model sophistication.
+              </p>
+            </details>
+          </li>
+        </ul>
+
+        <h3 class="cv-section">Education</h3>
+        <ul class="cv-list">
+          <li>
+            <p class="cv-title">PhD, Computational Biology - D-BIOL, ETH Zurich (graduated 11.2023)</p>
+            <p class="cv-meta">Zurich, Switzerland | Aug 2018 - Jan 2024</p>
+            <ul>
+              <li>PhD title: Simulation-based Metabolic Flux Inference.</li>
+              <li>Pioneered methods for modeling Riemannian continuous normalizing flows on convex polytopes.</li>
+              <li>Developed pipelines for Bayesian inference of biochemical reaction rates from mass-spectrometry data.</li>
+              <li>Engineered the <a href="https://github.com/Patrickens/sbmfi_public" target="_blank" rel="noreferrer">sbmfi package</a> for simulation-based metabolic flux inference in PyTorch.</li>
+            </ul>
+            <details class="cv-readmore">
+              <summary>Read more</summary>
+              <p>
+                During my PhD at ETH Zurich, I focused on turning metabolic flux inference into a scalable
+                probabilistic workflow that could handle realistic biological complexity. The research combined
+                Bayesian modeling, constrained simulation, and robust software implementation. A recurring challenge
+                was that inference quality depended as much on numerical behavior and model structure as on the
+                statistical method itself. I worked on this end-to-end: defining priors that respected biochemical
+                constraints, building inference strategies for noisy experimental data, and designing methods that
+                remained stable when scaling from toy examples to real datasets. On the methodological side, I
+                developed generative modeling approaches for constrained biological systems, including work on flows
+                over convex polytopes motivated by flux geometry. On the application side, I built mass-spectrometry
+                data pipelines and Bayesian inference workflows for biochemical reaction rates. A key engineering
+                output was the <a href="https://github.com/Patrickens/sbmfi_public" target="_blank" rel="noreferrer">sbmfi package</a>, implemented in PyTorch, to make these methods usable and extensible for
+                repeated experiments. The broader objective was practical: reduce dependence on ad hoc analysis and
+                make uncertainty-aware metabolic inference reproducible enough to support biological and process
+                decisions. That blend of theory, implementation, and applied validation strongly shaped how I now
+                approach modeling problems in industry.
+              </p>
+            </details>
+          </li>
+          <li>
+            <p class="cv-title">MSc, Biotechnology (Systems Biology) - D-BSSE, ETH Zurich</p>
+            <p class="cv-meta">Basel, Switzerland | Sep 2015 - Aug 2017</p>
+            <ul>
+              <li>Thesis in the Control Theory and Systems Biology Laboratory.</li>
+              <li>Courses: computational systems biology, machine learning, linear algebra, data science, and control theory.</li>
+            </ul>
+          </li>
+          <li>
+            <p class="cv-title">BSc, Life Science and Technology - Delft University of Technology</p>
+            <p class="cv-meta">Delft, The Netherlands | Sep 2011 - Nov 2014</p>
+          </li>
+        </ul>
+
+        <h3 class="cv-section">Skills</h3>
+        <ul class="cv-list">
+          <li><p><strong>Modeling:</strong> Normalizing flows, variational inference, Bayesian neural networks, MCMC, approximate Bayesian computation, convex optimization.</p></li>
+          <li><p><strong>Programming:</strong> Python, JAX, PyTorch, MATLAB, JavaScript, R, C++, Bash, PowerShell.</p></li>
+          <li><p><strong>Tooling:</strong> Git, Docker, scientific data pipelines, high-throughput inference workflows.</p></li>
+        </ul>
+
+        <h3 class="cv-section">Services</h3>
+        <ul class="cv-list">
+          <li><p>Reviewer for: <a href="https://academic.oup.com/bioinformatics" target="_blank" rel="noreferrer">Bioinformatics</a>, <a href="https://www.sciencedirect.com/journal/metabolic-engineering" target="_blank" rel="noreferrer">Metabolic Engineering</a>, <a href="https://www.simbiochem.com/" target="_blank" rel="noreferrer">EurIPS SIMBIOCHEM 2025</a></p></li>
+        </ul>
+
         <a class="download-btn" href="Thomas_Diederen_CV.pdf" download>Download Full CV (PDF)</a>
       </section>
 
@@ -122,9 +208,50 @@
           <p class="muted">March 2026</p>
           <h3>Cutting Bioreactor Scale-Up Costs with a Differentiable Metabolic Simulator</h3>
           <p>
-            Full post adapted from the original repository draft, including the inference pipeline figure.
+            How a differentiable metabolic simulator turns a single OD600 curve into substrate trajectories,
+            flux predictions, and medium recommendations — without intermediate measurements.
           </p>
           <p><a href="blog/posts/hybrid-modeling/index.html">Read full post</a></p>
+        </article>
+
+        <article class="card">
+          <p class="muted">Coming soon · 2023</p>
+          <h3>Simulation-Based Metabolic Flux Inference</h3>
+          <p>
+            From MCMC to amortised neural flows: how to make ¹³C flux inference fast enough for high-throughput
+            experiments, including a novel cylinder embedding and log-ratio transformation for MDVs.
+          </p>
+          <p><a href="blog/posts/sbmfi/index.html">Read preview</a></p>
+        </article>
+
+        <article class="card">
+          <p class="muted">Coming soon · 2025</p>
+          <h3>Flows on Convex Polytopes</h3>
+          <p>
+            Any convex polytope is homeomorphic to a ball — and that single fact unlocks normalising flows
+            and Riemannian flow matching for distributions on constrained parameter spaces like metabolic flux polytopes.
+          </p>
+          <p><a href="blog/posts/flows-polytopes/index.html">Read preview</a></p>
+        </article>
+
+        <article class="card">
+          <p class="muted">Coming soon · 2023</p>
+          <h3>Biologically Inspired Priors over Metabolic Fluxes</h3>
+          <p>
+            Three prior distributions over the flux polytope — projection, flux-ratio, and thermodynamic —
+            each encoding a different type of biological knowledge for Bayesian flux inference.
+          </p>
+          <p><a href="blog/posts/flux-priors/index.html">Read preview</a></p>
+        </article>
+
+        <article class="card">
+          <p class="muted">Coming soon · 2023</p>
+          <h3>An Instrument-Faithful Observation Model for Mass Distribution Vectors</h3>
+          <p>
+            LC-MS noise is heteroskedastic, log-normal, and correlated — not Gaussian. Calibrating a
+            faithful observation model on 400+ measurements changes posterior flux beliefs significantly.
+          </p>
+          <p><a href="blog/posts/observation-model/index.html">Read preview</a></p>
         </article>
       </section>
     </main>

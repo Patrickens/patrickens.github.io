@@ -136,6 +136,48 @@
       vx: Math.cos(driftAngle) * rand(4, 10),
       vy: Math.sin(driftAngle) * rand(4, 10),
       jitter: rand(0.8, 2.4),
+      spinDir: Math.random() < 0.5 ? -1 : 1,
+      startAngle: rand(0, Math.PI * 2),
+    });
+  }
+
+  function spawnPulse() {
+    const { cx, cy } = pickSpawnPoint(Math.max(70, Math.min(width, height) * 0.24));
+    const driftAngle = rand(0, Math.PI * 2);
+    bursts.push({
+      kind: "pulse",
+      cx,
+      cy,
+      t: 0,
+      life: rand(5.5, 9.0),
+      shade: Math.floor(rand(150, 200)),
+      rMax: rand(Math.max(32, Math.min(width, height) * 0.12), Math.max(70, Math.min(width, height) * 0.26)),
+      wobbleFreq: rand(2.2, 4.5),
+      wobbleAmp: rand(1.2, 3.0),
+      vx: Math.cos(driftAngle) * rand(2, 6),
+      vy: Math.sin(driftAngle) * rand(2, 6),
+      jitter: rand(0.6, 1.7),
+      phase: rand(0, Math.PI * 2),
+    });
+  }
+
+  function spawnOrbit() {
+    const { cx, cy } = pickSpawnPoint(Math.max(70, Math.min(width, height) * 0.24));
+    const driftAngle = rand(0, Math.PI * 2);
+    const orbitAngle = rand(0, Math.PI * 2);
+    bursts.push({
+      kind: "orbit",
+      cx,
+      cy,
+      t: 0,
+      life: rand(9.0, 14.0),
+      shade: Math.floor(rand(90, 130)),
+      orbitR: rand(18, 32),
+      orbitSpeed: rand(1.1, 2.0) * (Math.random() < 0.5 ? -1 : 1),
+      vx: Math.cos(driftAngle) * rand(12, 24),
+      vy: Math.sin(driftAngle) * rand(12, 24),
+      jitter: rand(0.05, 0.2),
+      phase: orbitAngle,
     });
   }
 
@@ -158,6 +200,31 @@
     const driftAngle = rand(0, Math.PI * 2);
     bursts.push({
       kind: "star",
+      cx,
+      cy,
+      rays: rayPoints,
+      t: 0,
+      life: rand(5.5, 8.5),
+      shade: Math.floor(rand(150, 195)),
+      vx: Math.cos(driftAngle) * rand(3, 8),
+      vy: Math.sin(driftAngle) * rand(3, 8),
+      jitter: rand(0.6, 1.8),
+    });
+  }
+
+  function spawnStarStraight() {
+    const { cx, cy } = pickSpawnPoint(Math.max(75, Math.min(width, height) * 0.27));
+    const rays = Math.floor(rand(8, 14));
+    const baseAngle = rand(0, Math.PI * 2);
+    const rayPoints = [];
+    for (let i = 0; i < rays; i += 1) {
+      const regular = (Math.PI * 2 * i) / rays;
+      const angleJitter = rand(-0.12, 0.12);
+      rayPoints.push({ a: baseAngle + regular + angleJitter, s: rand(10, 20), delay: rand(0, 0.42) });
+    }
+    const driftAngle = rand(0, Math.PI * 2);
+    bursts.push({
+      kind: "star_straight",
       cx,
       cy,
       rays: rayPoints,
@@ -227,9 +294,14 @@
     if (lastSpawn > nextSpawn) {
       lastSpawn = 0;
       nextSpawn = rand(1.6, 4.2);
-      const spawners = [spawnSpiral, spawnStar, spawnWave];
-      const spawn = spawners[Math.floor(Math.random() * spawners.length)];
-      spawn();
+      const hasOrbit = bursts.some((x) => x.kind === "orbit");
+      if (!hasOrbit && Math.random() < 0.45) {
+        spawnOrbit();
+      } else {
+        const spawners = [spawnSpiral, spawnStar, spawnStarStraight, spawnWave, spawnPulse, spawnOrbit];
+        const spawn = spawners[Math.floor(Math.random() * spawners.length)];
+        spawn();
+      }
     }
 
     ctx.clearRect(0, 0, width, height);
@@ -246,8 +318,9 @@
       if (b.kind === "spiral") {
         const maxTheta = Math.PI * 2 * b.turns * p;
         for (let k = 0; k < 3; k += 1) {
-          const theta = maxTheta - k * 0.18;
-          const radius = b.growth * theta * 0.32;
+          const localTheta = maxTheta - k * 0.18;
+          const theta = b.startAngle + b.spinDir * localTheta;
+          const radius = b.growth * localTheta * 0.32;
           const x = b.cx + Math.cos(theta) * radius + driftX + wobble;
           const y = b.cy + Math.sin(theta) * radius + driftY - wobble;
           emitPixel(x, y, b.shade, rand(0.9, 1.8));
@@ -271,7 +344,18 @@
           const y = b.cy + dirY * radial + nY * waveOffset + driftY - wobble;
           emitPixel(x, y, b.shade, rand(0.7, 1.35));
         }
-      } else {
+      } else if (b.kind === "star_straight") {
+        for (let r = 0; r < b.rays.length; r += 1) {
+          const ray = b.rays[r];
+          const armP = Math.max(0, Math.min(1, (p - ray.delay) / (1 - ray.delay)));
+          if (armP <= 0) continue;
+          const radius = 4 + armP * Math.max(width, height) * 0.16;
+          const radial = radius * (ray.s / 20);
+          const x = b.cx + Math.cos(ray.a) * radial + driftX + wobble;
+          const y = b.cy + Math.sin(ray.a) * radial + driftY - wobble;
+          emitPixel(x, y, b.shade, rand(0.7, 1.35));
+        }
+      } else if (b.kind === "wave") {
         const length = b.len + p * Math.max(width, height) * 0.22;
         const revealed = Math.max(2, length * p);
         const steps = 14;
@@ -286,6 +370,30 @@
           const y = b.cy + Math.sin(b.dir) * along + Math.sin(b.perp) * (curve - tailNudge) + driftY;
           emitPixel(x, y, b.shade, rand(0.2, 0.35));
         }
+      } else if (b.kind === "pulse") {
+        const ringP = Math.min(1, p * 1.1);
+        const radius = 4 + ringP * b.rMax;
+        const points = 18;
+        for (let q = 0; q < points; q += 1) {
+          const a = (Math.PI * 2 * q) / points;
+          const wave = Math.sin(a * 3 + b.t * b.wobbleFreq + b.phase) * b.wobbleAmp * ringP;
+          const x = b.cx + Math.cos(a) * (radius + wave) + driftX + wobble;
+          const y = b.cy + Math.sin(a) * (radius + wave) + driftY - wobble;
+          emitPixel(x, y, b.shade, rand(0.4, 1.0));
+        }
+      } else {
+        let centerX = b.cx + b.vx * b.t;
+        let centerY = b.cy + b.vy * b.t;
+        centerX = ((centerX % width) + width) % width;
+        centerY = ((centerY % height) + height) % height;
+
+        const orbitA = b.phase + b.orbitSpeed * b.t;
+        const radius = b.orbitR + Math.sin(b.t * 4.2) * b.jitter;
+        const x = centerX + Math.cos(orbitA) * radius;
+        const y = centerY + Math.sin(orbitA) * radius;
+
+        emitPixel(x, y, b.shade, rand(1.3, 2.1));
+        emitPixel(x, y, b.shade, rand(0.7, 1.2));
       }
 
       if (p >= 1) bursts.splice(i, 1);
@@ -309,7 +417,11 @@
   resize();
   spawnSpiral();
   spawnStar();
+  spawnStarStraight();
   spawnWave();
+  spawnPulse();
+  spawnOrbit();
+  spawnOrbit();
   requestAnimationFrame(step);
   window.addEventListener("resize", resize);
 })();

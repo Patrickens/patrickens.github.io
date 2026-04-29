@@ -8,120 +8,118 @@
 
 **TL;DR**
 
-- Developing growth media for fermentation still looks the same as it did forty years ago: mix nutrients, run experiments, adjust by hand. We want to predict instead.
-- We built what we believe is the first fully differentiable dynamic metabolic simulator — meaning machine learning can now learn directly from mechanistic biological models, not around them.
-- Trained on cheap 96-well plate data across ~3,000 fermentation experiments, the simulator decodes how organisms use complex ingredients and transfers that knowledge directly to bioreactor scale.
+- Developing growth media for fermentation still looks the same as it did forty years ago: mix nutrients, run experiments, adjust by hand. We built a simulator that predicts instead.
+- We believe this is the first fully differentiable dynamic metabolic simulator — machine learning can now learn directly from mechanistic biological models, not around them.
+- The entire inference runs on OD600 alone — no substrate assays, no metabolomics — and transfers what it learns directly to bioreactor scale.
 
 ---
 
 ## The Problem: Fermentation Optimisation Still Runs on Intuition
 
-Probiotics are a multi-billion dollar industry. The organisms that make them — lactic acid bacteria like *Lactobacillus rhamnosus*, *L. casei*, and *L. salivarius* — are well-characterised, commercially important, and the subject of decades of research. Yet the process of developing a growth medium for a new strain looks essentially the same as it did forty years ago: a bench scientist mixes nutrients, runs fermentations, and adjusts by hand. The search space is enormous. A typical recipe has ten or more components. Each batch takes 32 hours. There is no systematic way to explore.
+Probiotics are a multi-billion dollar industry. The organisms that make them — lactic acid bacteria like *Lactobacillus rhamnosus* and *L. casei* — are well-characterised and commercially important. Yet developing a growth medium for a new strain looks essentially the same as it did forty years ago: a bench scientist mixes nutrients, runs fermentations, and adjusts by hand. A typical recipe has ten or more components; each batch takes 32 hours; the design space expands combinatorially as ingredients are added. There is no systematic way to explore it.
 
-We want to do something different: **predict** how a strain will grow across thousands of medium compositions, and use those predictions to:
+High-throughput 96-well plate screening helps, but translating observed growth curves into actionable formulation decisions is still hard. The only readout available in a plate screen is OD600 — an optical proxy for biomass — yet medium performance depends on substrate consumption rates, secreted metabolite profiles, and internal fluxes that are never directly measured. The underlying biology is straightforward to state: cells consume substrates from the medium, convert them through a network of metabolic reactions into new biomass, and excrete products like lactate and acetate as byproducts. A useful model needs to track all three. Getting there from a growth curve alone is the challenge.
 
-- **Design cost-effective media** — identify the cheapest formulation that still hits a target biomass yield
-- **Decode complex ingredients** — learn the weight fractions of macronutrients such as carbohydrates and protein in complex hydrolysates like yeast extract and peptones, turning an opaque ingredient into a characterised set of nutrient inputs
-- **Reduce experimental burden for new strains** — some parameters are unique to a strain (glucose uptake rate, substrate preferences), but others are shared across strains (the composition of yeast extract, energy maintenance requirements, the structure of the metabolic network). Parameters that are shared do not need to be re-learned from scratch for each new organism; only the strain-specific ones require fresh experiments
-- **Transfer knowledge to bioreactors** — the kinetic parameters inferred from plate data describe the organism, not the vessel; the same model informs scale-up predictions
+We address this through Bayesian inference over a dynamic flux balance analysis (dFBA) model of *Lactobacillus* growth, fitting exclusively to OD600. The framework infers which substrates the organism is consuming, what it is excreting, and how its metabolic network is allocating resources — all from the growth curve alone, without expensive analytical assays. This design enables four capabilities that existing approaches do not readily provide:
 
-The underlying biology is straightforward to state. Cells consume **substrates** from the medium — glucose, amino acids, vitamins, minerals — convert them through a network of metabolic reactions into new biomass, and excrete **products** like lactate and acetate as byproducts. The rate at which this happens, and which substrates get consumed in which order, determines the shape of the growth curve and the composition of the broth at harvest. A useful model needs to track all three: substrates going in, biomass accumulating, products coming out.
-
-This is not a new ambition. What is new is our ability to act on it — because we have built a simulator that can learn.
-
-There is an immediate challenge worth naming: industrial fermentation media are not collections of pure metabolites. A typical recipe includes components like yeast extract, peptones, and meat extract — complex hydrolysates whose exact molecular composition is only partially characterised. The metabolic model needs concentrations of individual molecules in millimolar; the recipe gives you grams per litre of a mixture. We will come back to how we handle this.
+- **Cost-effective medium design**: once a posterior over kinetic parameters is available, formulations can be optimised against any user-specified objective — yield, cost, product titre, or any combination.
+- **Decoding complex ingredients**: the macronutrient weight fractions of hydrolysates like yeast extract are treated as inferred parameters, decoded from growth data rather than assumed from supplier specifications.
+- **Cross-strain transfer**: ingredient and shared-biochemistry parameters tighten from the joint dataset, reducing calibration burden for each new organism.
+- **Scale-up prediction**: kinetic parameters describe the organism, not the vessel; posteriors inferred from plate data carry directly to bioreactor predictions without re-fitting.
 
 ---
 
 ## Why Mechanistic Models — and Why They Break
 
-The natural computational framework for this problem is **dynamic flux balance analysis** (dFBA). It is a well-established approach in systems biology: represent the organism's metabolic network as a set of biochemical reactions, assume cells maximise their growth rate subject to enzyme capacity constraints, and track how substrate concentrations evolve over time. Think of it as a detailed digital twin — similar in spirit to how aerospace engineers simulate airflow before building a wind tunnel, or how chip designers simulate circuits before committing to silicon. Other industries model before they build. Biology has been slow to follow, partly because the models are harder.
+The natural computational framework for this problem is **dynamic flux balance analysis** (dFBA), widely adopted by experimental practitioners for modelling batch fermentations. It represents the organism's metabolic network as a set of biochemical reactions, assumes cells maximise their growth rate subject to enzyme capacity constraints, and tracks how substrate concentrations evolve over time. Think of it as a digital twin for the organism — similar in spirit to how aerospace engineers simulate airflow before building a wind tunnel, or how chip designers simulate circuits before committing to silicon.
 
-dFBA has a structural problem that becomes critical the moment you want to use it for machine learning. At every moment in time, the model solves an optimisation problem to figure out which metabolic reactions are running at what rate. This is computationally expensive but tractable. The deeper issue is **differentiability**: when you want to fit the model to experimental data, you need gradients — the mathematical equivalent of asking "if I change this parameter slightly, how does the prediction change?" The optimisation solver at the core of dFBA cannot answer that question cleanly. As the organism shifts from one metabolic strategy to another — for instance, switching from glucose to amino acids as its primary carbon source — the solver's output changes discontinuously. JAX, the numerical computing library we use, returns NaN. Gradient-based inference becomes impossible.
+dFBA has a structural problem that becomes critical the moment you want to use it for machine learning. At every time step, the model solves an optimisation problem to determine which reactions are running at what rate. The deeper issue is **differentiability**: fitting the model to data requires gradients — the mathematical answer to "if I change this parameter slightly, how does the prediction change?" As the organism shifts metabolic strategy — switching from glucose to amino acids as its primary carbon source, say — the solver's output changes discontinuously. Gradient-based inference becomes impossible.
 
-Without gradients, machine learning cannot learn from the simulator. You can run it, but you cannot fit it. You get a tool for forward simulation, not for inference.
+Without gradients, machine learning cannot learn from the simulator. You can run it, but you cannot fit it.
 
-This problem is not unique to biology — and the solutions developed in other fields point the way forward. In [particle physics](https://arxiv.org/abs/2203.05570), differentiable detector simulators are replacing expensive Monte Carlo methods at CERN, enabling end-to-end optimisation of experimental design. In [cosmology](https://arxiv.org/abs/2202.07440), differentiable N-body simulations allow field-level inference that extracts far more information from galaxy surveys than traditional summary statistics ever could. [AlphaFold](https://www.nature.com/articles/s41586-021-03819-2) — arguably the most celebrated scientific AI result of the last decade — relied critically on differentiating through a structural scoring function to learn protein geometry from sequence. [NeuralGCM](https://www.nature.com/articles/s41586-024-07744-y) from Google DeepMind embeds differentiable atmospheric physics into a learned climate model, closing the gap between data-driven weather forecasting and physics-based prediction. The common thread: wherever you can make the simulator differentiable, machine learning can learn from it rather than around it. NVIDIA has made major recent investments in back-differentiable physics engines for exactly this reason. Biology is the harder version — less linear, noisier, operating across more timescales, with components whose composition you do not fully know. But the payoff is proportionally larger.
+This problem is not unique to biology. In particle physics, differentiable detector simulators are replacing Monte Carlo methods at CERN. [AlphaFold](https://www.nature.com/articles/s41586-021-03819-2) relied critically on differentiating through a structural scoring function to learn protein geometry from sequence. [NeuralGCM](https://www.nature.com/articles/s41586-024-07744-y) embeds differentiable atmospheric physics into a climate model, closing the gap between data-driven forecasting and physics-based prediction. The common thread: wherever you make the simulator differentiable, machine learning learns from it rather than around it. Biology is the harder version — noisier, operating across more timescales, with components whose composition you do not fully know. But the payoff is proportionally larger.
 
 ---
 
 ## The Core Innovation: Making the Simulator Differentiable
 
-Back-differentiability is not a minor technical improvement. It is what allows gradient descent — the engine of all modern machine learning — to be applied directly to biological modelling. It is the thing that turns a simulation tool into a learning tool.
+Our approach is the **Relaxed Interior-Point ODE** (R-iODE), building on foundational work by [Scott (2018)](https://www.sciencedirect.com/science/article/abs/pii/S0098135418309190) that we extend substantially. Instead of calling an optimisation solver at every time step and getting a non-differentiable answer, we embed the conditions that define an optimal solution — the KKT conditions — directly into the differential equation describing the system's dynamics. The solver runs once, at the start of the simulation. From there, a smooth system tracks the optimal metabolic state continuously as concentrations evolve. No discrete jumps. No undefined gradients. Just a smooth ODE — gradients flow through the full trajectory.
 
-Our approach is called the **Relaxed Interior-Point ODE** (R-iODE), following foundational work by [Scott (2018)](https://www.sciencedirect.com/science/article/abs/pii/S0098135418309190) that we have substantially extended. The idea is elegant. Instead of calling an optimisation solver at every time step and getting a non-differentiable answer, we embed the conditions that define an optimal solution — the KKT conditions, for those familiar with constrained optimisation — directly into the differential equation that describes the system's dynamics. The solver runs once, at the start of the simulation. From there, a smooth mathematical system tracks the optimal metabolic state continuously as substrate concentrations evolve. No discrete jumps. No undefined gradients.
+One practical challenge: the resulting ODE is high-dimensional, with roughly 50 reaction fluxes. A key contribution is **null-space reduction**: a coordinate transformation that exploits conservation laws in metabolic networks to compress the problem from ~50 variables to ~15 without losing information. Per-experiment simulation time drops from ~2 seconds to ~0.03 seconds after JIT compilation — a 60× speedup that makes running 2,100 simulations in a training loop feasible.
 
-The result: no LP, no QP at each step. Just a smooth ODE. Gradients flow through the full trajectory.
+We also introduce three smooth **gating functions** that handle biological realities absent from the engineering settings where R-iODE was originally developed: a tapering function for graceful substrate exhaustion, an energy maintenance gate for ATP feasibility late in a batch, and a biomass objective gate that prevents numerical blow-up as growth winds down.
 
-One practical challenge is that the resulting differential equation is high-dimensional — the full metabolic network has roughly 50 reaction fluxes. A key engineering contribution is what we call **null-space reduction**: a coordinate transformation that exploits the conservation laws built into metabolic networks to compress the problem from ~50 variables to ~15, without losing any information. This makes the approach computationally tractable at scale — per-experiment simulation time drops from ~2 seconds to ~0.03 seconds after JIT compilation, a 60× speedup. Running 3,000 simulations in a training loop becomes feasible.
+Here is what a successful simulation looks like:
 
-We also introduce three smooth **gating functions** that handle biological realities not present in the chemical engineering settings where R-iODE was originally developed: a tapering function that ensures substrate uptake rates approach zero gracefully as nutrients are exhausted, an energy maintenance gate that keeps the system feasible when ATP availability becomes tight at the end of a batch, and a biomass objective gate that prevents numerical blow-up as growth winds down.
+![Successful dFBA simulation](sim_success.png)
+
+*A representative 32-hour batch fermentation. Substrate concentrations decline as the organism grows; import fluxes track kinetics and resource allocation in real time. Computed by integrating a single smooth ODE — no optimisation solver in the loop.*
 
 ---
 
 ## What Differentiability Unlocks: Bayesian Inference at Scale
 
-With a differentiable simulator, Bayesian inference over ~60 biological parameters becomes possible — fitted simultaneously to ~3,000 fermentation experiments.
+With a differentiable simulator, Bayesian inference over ~60 biological parameters becomes possible — fitted simultaneously to ~2,100 fermentation experiments across 54 distinct medium compositions. These parameters θ are biochemical quantities: kinetic rate constants, enzyme capacity bounds, stoichiometric coefficients for complex hydrolysate fractions, and maintenance energy requirements. Critically, the only input signal is OD600; substrate concentrations, product secretion, and internal fluxes are inferred as latent variables constrained by metabolic network stoichiometry. No substrate assays. No metabolomics. Just growth curves.
 
-The difference between a point estimate and a full posterior distribution matters practically. A point estimate tells you the most likely parameter values. A posterior tells you **how confident you should be**. That shapes which medium to test next, which experiment would be most informative for a new strain, and whether a scale-up prediction is reliable enough to act on. It is the difference between a single prediction and a distribution over predictions with honest uncertainty bounds.
+The difference between a point estimate and a full posterior matters practically. A posterior tells you **how confident you should be** — shaping which medium to test next, and whether a scale-up prediction is reliable enough to act on. It also enables principled experiment design: **mutual information** (Mut. Info.) between candidate experiments and model parameters quantifies how much a proposed run would reduce parameter uncertainty. Selecting the experiment that maximises mutual information is provably the most efficient way to learn — directing expensive fermentation runs toward conditions that answer open questions rather than repeating what the model already knows. Our robotic 96-well plate platform generates OD600 growth curves at high throughput, and the differentiable simulator is what makes it possible to extract mechanistic insight from all of them simultaneously.
 
-The data source is deliberately cheap: OD600 growth curves, which our robotic 96-well plate platform generates at high throughput. No expensive metabolomics required. We measure optical density every two hours over 32-hour batch fermentations for three *Lactobacillus* strains across thousands of distinct medium compositions. That is a lot of growth curves. The differentiable simulator is what makes it possible to extract mechanistic insight from all of them simultaneously.
+![Inference pipeline](figure_v2.png)
 
-This is not a separate research project. The same data pipeline feeds directly into the high-throughput screening workflow we use for customers today.
-
-![Differentiable dFBA inference pipeline](figure.png)
-
-*Figure: Pipeline used in the blog post. Medium composition (`c0`) initializes the simulator, observations enter the simulator likelihood term, variational inference updates `q_ϑ(θ)` with priors `p(θ)`, and inferred biochemical parameters `θ` feed downstream applications (media design, scale transfer, and planning). Source vector graphic: `inference_pipeline.svg`.*
+*The inference pipeline. **Data D** (top left): OD600 growth curves from 96-well plate screens across many medium compositions — the only signal we fit to. **Prior p(θ)** and **Posterior p(θ|D)** (middle left): we begin with literature-informed prior distributions over biochemical parameters θ and update them via variational inference with normalising flows. **Differentiable simulator** (bottom left): at the heart of inference, the dFBA simulator takes θ and a medium as input and produces ODE trajectories; differentiability is what makes gradient-based posterior fitting possible. **Latent state insights** (top right): because the simulator tracks the full metabolic state, substrate consumption, product excretion, import fluxes, and hydrolysate composition are recovered as latent variables even though they were never measured. **Applications** (bottom right): the calibrated posterior supports scale-up prediction, strain transfer, medium optimisation, and mutual-information-guided experiment design.*
 
 ---
 
 ## Decoding Complex Ingredients: Alpha Fractions
 
-Yeast extract is a black box: carbohydrates, proteins, nucleotides, and vitamins in proportions that vary by supplier and batch. The metabolic model needs macronutrient concentrations in millimolar; the recipe gives you a mass per litre of an ill-defined mixture. We introduce **alpha fractions** — learnable parameters encoding the weight fractions of macronutrients like carbohydrates and protein in each complex ingredient, inferred jointly with the kinetic parameters from growth data. The information is not on the label; it is encoded in the growth response, and the posterior extracts it.
+Industrial fermentation media are not collections of pure metabolites. Yeast extract, peptones, and meat extract are complex hydrolysates whose composition varies by supplier and batch. The metabolic model needs macronutrient concentrations in millimolar; the recipe gives you grams per litre of an ill-defined mixture.
 
-Alpha fractions are properties of the ingredient, not the organism, so they are shared across strains and inferred jointly from all three *Lactobacillus* datasets — meaning a new strain does not require a fresh characterisation of yeast extract composition, only its own kinetic parameters.
+We introduce **alpha fractions** — learnable parameters encoding the weight fractions of carbohydrates and protein in each complex ingredient, inferred jointly with the kinetic parameters from growth data. The information is not on the label; it is encoded in the growth response. Because alpha fractions are properties of the ingredient rather than the organism, they are shared across strains and inferred jointly from the full dataset — a new strain does not require fresh characterisation of yeast extract, only its own kinetic parameters.
 
 ---
 
-## Three Ways to Model Fermentation — and Why the Choice Matters
+## Three Ways to Model Fermentation
 
-Our observations are partial: the plate reader gives us OD600, a proxy for biomass. We have no time-resolved measurements of substrate concentrations or product accumulation. This is a fundamental constraint — but it does not mean we are limited to modelling only biomass. The question is whether the model structure allows unobserved variables to be inferred from the signal we do have.
+Our only observable is OD600. The question is whether the model structure allows unobserved variables — substrate consumption, product secretion — to be inferred from it.
 
-**Regression on summary statistics.** The simplest approach assumes a fixed functional form — typically a Gompertz curve — and fits it to each growth trajectory to extract summary statistics: maximum OD, growth rate, time to stationary phase. These are then regressed against the input medium. The Gompertz assumption is a strong one: real growth curves can be biphasic, asymmetric, or show extended lag phases that no single sigmoid captures well. More fundamentally, even a perfect fit says nothing about substrates or products. The model has no concept of nutrient depletion, cannot distinguish a nitrogen-limited medium from an energy-limited one, and cannot extrapolate reliably outside the training distribution. It is a description of the growth curve shape, not a model of the biology behind it.
+**Regression on summary statistics** fits a curve to each growth trajectory and regresses the resulting statistics against the medium. It is fast but says nothing about substrates or products, cannot distinguish nitrogen-limited from energy-limited media, and extrapolates poorly outside the training distribution.
 
-**Neural ODEs.** A neural ODE drops the Gompertz assumption entirely, learning the differential equation governing biomass dynamics directly from data. This gives it the flexibility to capture complex trajectories — biphasic growth, unusual lag phases, asymmetric stationary phases — without any prescribed functional form. That is a genuine advantage over regression. But the state it models is still just biomass. Substrates and products remain absent, not because of a limitation that could be engineered away, but because there is no structure in the model that would connect them to the observable signal. A neural ODE fit to OD600 data has learned a flexible curve; it has not learned any biology.
+**Neural ODEs** learn the growth differential equation directly from data, capturing biphasic or asymmetric trajectories that no fixed curve can represent. A genuine advantage over regression — but the state is still just biomass. There is no structure that connects internal metabolic state to the observable signal, so substrate and product dynamics simply cannot be inferred.
 
-**The grey-box simulator.** Our simulator models the same complex growth dynamics, but its internal state includes the full picture: substrates being consumed, biomass accumulating, products being excreted. Critically, the metabolic network constrains how these variables relate to each other — substrate depletion must be consistent with the observed biomass gain, product excretion must balance the carbon budget. This means substrate and product dynamics can be inferred from the OD600 signal alone, even though we never measure them directly. The model treats them as latent variables tied to the observable through known biochemistry, not as quantities that must be observed to be modelled.
+**The grey-box simulator** models the same dynamics but its internal state includes the full picture: substrates consumed, biomass accumulated, products excreted. The metabolic network constrains how these variables relate to each other, so substrate and product trajectories can be inferred from OD600 alone. Designing a cheaper medium requires knowing which substrates the organism is actually consuming; predicting bioreactor behaviour requires tracking what happens to nutrients over time. Neither question can be answered by a model that represents only what it directly observes.
 
-This is what makes the grey-box approach useful for our goals. Designing a cheaper medium requires knowing which substrates the organism is actually consuming. Predicting bioreactor behaviour requires tracking what happens to nutrients and products over time, not just the biomass trajectory. None of those questions can be answered by a model that only represents what it directly observes.
-
-We should be honest about the limits. The simulator has ~60 parameters, and interpretability should not be overstated. The practical argument — fewer experiments, cheaper media, faster scale-up — is stronger than the philosophical one. We are not claiming hybrid modelling is the only approach; it is the one we are committed to developing, alongside our existing neural network ensemble platform.
+We are not claiming hybrid modelling is the only approach — it is the one we are committed to, alongside our existing neural network ensemble platform.
 
 ---
 
 ## Scale-Agnostic by Design
 
-The kinetic parameters we infer from 96-well plate data describe the organism, not the vessel. When you move from a 200 µL well to a 1,000 L bioreactor, the process environment changes — mass transfer, hydrodynamics, temperature gradients. The biochemistry does not.
+Kinetic parameters describe the organism, not the vessel. When you move from a 200 µL well to a 1,000 L bioreactor, mass transfer and hydrodynamics change. The biochemistry does not.
 
-This is the **scale transfer argument**: learn the biology at small scale, apply it everywhere. Because the posterior over kinetic parameters is a property of the organism, it carries directly to bioreactor-scale predictions. As new data from larger scales becomes available, the posterior updates. Each new scale adds accuracy rather than requiring a model rebuild from scratch.
-
-The path from 96-well plate to production scale is shorter when the model you are scaling encodes the organism's biochemistry rather than the geometry of the vessel it was grown in.
+This is the scale transfer argument: learn the biology at small scale, apply it everywhere. Posteriors inferred from plate data carry directly to bioreactor-scale predictions. As data from larger scales becomes available, the posterior updates — each new scale adds accuracy rather than requiring a model rebuild from scratch. The path from 96-well plate to production scale is shorter when the model encodes the organism's biochemistry rather than the geometry of the vessel it was grown in.
 
 ---
 
-## What Is Still Hard — and What Comes Next
+## Simulator State: What Works and What Doesn't
 
-The simulator itself — the R-iODE, null-space reduction, gating functions, and probabilistic model — is complete and running on all three strains. The remaining challenge is inference at full scale: fitting a [normalising flow](https://arxiv.org/abs/1906.04032) as an approximate posterior over ~60 parameters simultaneously across ~3,000 experiments using variational inference. Normalising flows are a class of deep generative model that learn a flexible probability distribution by composing invertible transformations — well-suited to the skewed, bounded posteriors that arise over kinetic parameters. Getting gradient stability through 3,000 parallel ODE integrations in a single training loop is the active engineering problem.
+Successful simulations look biologically sensible: glucose consumed preferentially, secondary substrates following as primary carbon depletes, biomass accumulating in a sigmoid curve. Not every simulation finishes. Systematic sweeps show 83% completion varying parameter seeds and 97% varying medium composition. The dominant failure mode is ODE step-size collapse as substrates exhaust and the feasible polytope shrinks. The three gating functions address the known causes; raising completion rate further across the full prior distribution remains the primary numerical engineering challenge.
 
-The immediate next step is completing that inference pipeline, validating the inferred substrate dynamics against targeted metabolomics measurements, and submitting the preprint.
+One honest note: fixing the interior-point barrier at a small positive value means the simulator tracks the central path of the metabolic optimisation rather than its exact solution, introducing a slight bias relative to classical dFBA. In practice this is negligible — the barrier is fixed at ~10⁻⁵, and dFBA is itself a coarse approximation of real cellular metabolism.
 
-We are looking for collaborators — computational biologists, systems biologists, and fermentation scientists who want to work on these problems — and we are hiring.
+---
+
+## What Comes Next
+
+The simulator is running. The remaining challenge is inference at full scale: fitting a [normalising flow](https://arxiv.org/abs/1906.04032) as an approximate posterior over ~60 parameters across ~2,100 experiments spanning 54 medium compositions. Two prerequisites remain: completing gradient validation through the full adjoint pass, and raising simulation completion rate across the prior.
+
+When both are resolved, the approach is not limited to *Lactobacillus* or probiotic production. Any organism with a sufficiently curated genome-scale metabolic model and accessible batch OD600 data is a candidate for this inference pipeline. Extensions to fed-batch or continuous culture require modifications to the extracellular dynamics but not to the core simulator. And the posterior distributions over latent substrate trajectories point directly to which targeted metabolomics measurements would most reduce parameter uncertainty — connecting model-based inference to efficient experimental design.
+
+The immediate next steps are completing gradient validation, running the normalising flow training, and validating inferred substrate dynamics against targeted metabolomics measurements. We are looking for collaborators — computational biologists, systems biologists, and fermentation scientists — and we are hiring.
 
 ---
 
 ## Closing
 
-Forty years of mixing nutrients and adjusting by hand. The bench scientist who runs that experiment is doing something irreplaceable — biology is too complex, and experimental intuition too valuable, to automate away. But the step from a hundred experiments to a thousand to ten thousand to a hundred thousand should not rely on intuition alone. That is what the simulator is for: not to replace the scientist, but to make every experiment they run carry more information, reach further, and cost less.
+Forty years of mixing nutrients and adjusting by hand. The bench scientist who runs that experiment is doing something irreplaceable — biology is too complex, and experimental intuition too valuable, to automate away. But the step from a hundred experiments to ten thousand should not rely on intuition alone. That is what the simulator is for: not to replace the scientist, but to make every experiment they run carry more information, reach further, and cost less.
 
 ---
 
