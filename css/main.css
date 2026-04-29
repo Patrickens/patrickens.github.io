@@ -27,8 +27,8 @@ body {
 .quadrants {
   display: grid;
   grid-template-columns: 260px 1fr;
-  grid-template-rows: 220px minmax(0, 1fr);
-  grid-template-areas: "photo top" "links content";
+  grid-template-rows: 73px 147px minmax(0, 1fr);
+  grid-template-areas: "photo top" "photo content" "links content";
   width: 100%;
   height: calc(100dvh - 66px);
   min-height: 0;
@@ -83,7 +83,7 @@ body {
 
 .q-content {
   grid-area: content;
-  padding: 1.7rem 2rem;
+  padding: 0.8rem 1.25rem 1.7rem;
   min-height: 0;
   overflow: auto;
   font-size: 1rem;
@@ -97,13 +97,17 @@ body {
   line-height: 1.6;
 }
 
-.q-content .cv-section,
+.q-content .cv-section {
+  font-size: 1.35rem !important;
+  line-height: 1.25;
+}
+
 .q-content .cv-title,
 .q-content .publication-item h3,
 .q-content #blog h3,
 .q-content #cv h3 {
-  font-size: 2.05rem !important;
-  line-height: 1.18;
+  font-size: 1rem !important;
+  line-height: 1.35;
 }
 
 .photo-circle {
@@ -359,7 +363,7 @@ a { color: var(--accent); }
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 56px;
+  min-height: 42px;
   background: var(--panel-warm);
 }
 
@@ -367,7 +371,7 @@ a { color: var(--accent); }
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  transform: translateY(-8px);
+  transform: none;
 }
 
 .social-icons {
@@ -514,4 +518,10 @@ a { color: var(--accent); }
   .about-layout { grid-template-columns: 1fr; }
   .bibtex { width: 100%; }
   .nyan-rainbow { width: 48px; }
+  .q-content .cv-title,
+  .q-content .publication-item h3,
+  .q-content #blog h3,
+  .q-content #cv h3 {
+    font-size: 0.95rem !important;
+  }
 }
