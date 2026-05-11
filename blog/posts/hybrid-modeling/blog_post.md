@@ -4,6 +4,8 @@
 
 *Tomek Diederen · March 2026*
 
+*The methods described in this post are written up in [Diederen (2026)](https://www.biorxiv.org/content/10.64898/2026.05.05.722888v1.full) on bioRxiv.*
+
 ---
 
 **TL;DR**

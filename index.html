@@ -12,12 +12,30 @@
 </head>
 <body>
   <div class="quadrants">
-    <aside class="q-photo">
-      <div class="photo-circle">
-        <img class="profile-photo" src="tomek_picture.jfif" alt="Portrait of Thomas Diederen">
+    <button class="sidebar-toggle" aria-label="Open navigation" aria-expanded="false">
+      <svg class="icon-hamburger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+
+    <aside class="sidebar">
+      <div class="q-photo">
+        <div class="photo-circle">
+          <img class="profile-photo" src="tomek_picture.jfif" alt="Portrait of Thomas Diederen">
+        </div>
+        <p class="photo-name">Thomas Diederen</p>
+        <p class="photo-email"><span class="at-icon">@</span> diederent@gmail.com</p>
       </div>
-      <p class="photo-name">Thomas Diederen</p>
-      <p class="photo-email"><span class="at-icon">@</span> diederent@gmail.com</p>
+      <div class="q-links">
+        <nav class="nav-links" aria-label="Main sections">
+          <a href="#about" data-tab="about">About Me</a>
+          <a href="#publications" data-tab="publications">Publications</a>
+          <a href="#cv" data-tab="cv">CV</a>
+          <a href="#blog" data-tab="blog">Blog</a>
+        </nav>
+        <div class="pixel-rain" aria-hidden="true">
+          <canvas id="pixel-rain-canvas"></canvas>
+        </div>
+      </div>
     </aside>
 
     <section class="q-topright">
@@ -25,18 +43,6 @@
         <canvas id="top-pattern-canvas"></canvas>
       </div>
     </section>
-
-    <aside class="q-links">
-      <nav class="nav-links" aria-label="Main sections">
-        <a href="#about" data-tab="about">About Me</a>
-        <a href="#publications" data-tab="publications">Publications</a>
-        <a href="#cv" data-tab="cv">CV</a>
-        <a href="#blog" data-tab="blog">Blog</a>
-      </nav>
-      <div class="pixel-rain" aria-hidden="true">
-        <canvas id="pixel-rain-canvas"></canvas>
-      </div>
-    </aside>
 
     <main class="q-content">
       <section id="about" class="tab-panel">
@@ -81,30 +87,70 @@
 
       <section id="publications" class="tab-panel" hidden>
         <article class="publication-item">
-          <h3>A Differentiable dFBA Simulator for Scalable Bayesian Inference over Microbial Metabolic Models</h3>
-          <p class="muted">bioRxiv, 2026</p>
-          <p>A differentiable dynamic flux balance analysis simulator embedded in JAX, enabling end-to-end gradient-based inference over ~2,100 batch fermentations using OD600 as the sole observation signal.</p>
-          <a class="download-btn" href="hybrid_dfba_paper.pdf" download>Download preprint (PDF)</a>
+          <h3>Simulation-based Metabolic Flux Inference</h3>
+          <div class="bibtex">@unpublished{diederen2026sbmfi_method,
+  author = {Tomek Diederen and Nicola Zamboni},
+  title = {Simulation-based Metabolic Flux Inference},
+  note = {In preparation},
+  year = {2026}
+}</div>
         </article>
 
         <article class="publication-item">
-          <h3>Flows on convex polytopes</h3>
+          <h3>A Differentiable dFBA Simulator for Scalable Bayesian Inference over Microbial Metabolic Models</h3>
+          <div class="bibtex">@article{diederen2026dfba,
+  author = {Tomek Diederen},
+  title = {A Differentiable {dFBA} Simulator for Scalable {Bayesian} Inference over Microbial Metabolic Models},
+  journal = {bioRxiv},
+  year = {2026},
+  doi = {10.64898/2026.05.05.722888},
+  url = {<a href="https://www.biorxiv.org/content/10.64898/2026.05.05.722888v1.full" target="_blank" rel="noreferrer">https://www.biorxiv.org/content/10.64898/2026.05.05.722888v1.full</a>}
+}</div>
+        </article>
+
+        <article class="publication-item">
+          <h3>Flows on Convex Polytopes</h3>
           <div class="bibtex">@article{diederen2025flows,
   author = {Tomek Diederen and Nicola Zamboni},
-  title = {Flows on convex polytopes},
+  title = {Flows on Convex Polytopes},
   journal = {arXiv preprint arXiv:2503.10232},
   year = {2025},
   month = {03},
-  day = {13},
   url = {<a href="https://arxiv.org/abs/2503.10232" target="_blank" rel="noreferrer">https://arxiv.org/abs/2503.10232</a>}
 }</div>
         </article>
 
         <article class="publication-item">
-          <h3>Simulation-based metabolic flux inference</h3>
+          <h3>Machine Learning Reveals Novel Compound for the Improved Production of Chitooligosaccharides in <em>Escherichia coli</em></h3>
+          <div class="bibtex">@article{mey2025chitooligosaccharides,
+  author = {Friederike Mey and Gaetan De Waele and Wouter Demeester and Chiara Guidi and Dries Duchi and Tomek Diederen and Hanne Kochuyt and Kirsten Van Huffel and Nicola Zamboni and Willem Waegeman and Marjan De Mey},
+  title = {Machine Learning Reveals Novel Compound for the Improved Production of Chitooligosaccharides in {Escherichia coli}},
+  journal = {New Biotechnology},
+  volume = {86},
+  pages = {39--46},
+  year = {2025},
+  doi = {<a href="https://doi.org/10.1016/j.nbt.2025.01.005" target="_blank" rel="noreferrer">10.1016/j.nbt.2025.01.005</a>}
+}</div>
+        </article>
+
+        <article class="publication-item">
+          <h3>Metabolomics</h3>
+          <div class="bibtex">@incollection{diederen2021metabolomics,
+  author = {Tomek Diederen and Alexis Delabrière and Alaa Othman and Michael E. Reid and Nicola Zamboni},
+  title = {Metabolomics},
+  booktitle = {Metabolic Engineering: Concepts and Applications},
+  publisher = {Wiley},
+  year = {2021},
+  pages = {259--299},
+  doi = {<a href="https://doi.org/10.1002/9783527823468.ch9" target="_blank" rel="noreferrer">10.1002/9783527823468.ch9</a>}
+}</div>
+        </article>
+
+        <article class="publication-item">
+          <h3>Simulation-based Metabolic Flux Inference</h3>
           <div class="bibtex">@phdthesis{diederen2023sbmfi,
-  author = {Thomas HM Diederen},
-  title = {Simulation-based metabolic flux inference},
+  author = {Thomas H.M. Diederen},
+  title = {Simulation-based Metabolic Flux Inference},
   school = {ETH Zurich},
   year = {2023},
   url = {<a href="https://www.research-collection.ethz.ch/entities/publication/3f28a9cc-00e3-452d-b2dc-0d77acde6f7c" target="_blank" rel="noreferrer">https://www.research-collection.ethz.ch/entities/publication/3f28a9cc-00e3-452d-b2dc-0d77acde6f7c</a>}

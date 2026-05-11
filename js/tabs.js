@@ -1,6 +1,26 @@
 (function setupTabs() {
   const links = Array.from(document.querySelectorAll(".nav-links a"));
   const panels = Array.from(document.querySelectorAll(".tab-panel"));
+  const sidebar = document.querySelector(".sidebar");
+  const toggle = document.querySelector(".sidebar-toggle");
+
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", () => {
+    const isOpen = sidebar.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSidebar();
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 860) closeSidebar();
+  });
 
   function syncAboutImageHeight() {
     const about = document.getElementById("about");
@@ -25,6 +45,8 @@
     links.forEach((link) => {
       link.classList.toggle("active", link.dataset.tab === tabId);
     });
+
+    closeSidebar();
 
     requestAnimationFrame(syncAboutImageHeight);
   }
